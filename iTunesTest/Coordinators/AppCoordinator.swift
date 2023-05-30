@@ -15,13 +15,16 @@ final class AppCoordinator: Coordinator {
     
     private let window: UIWindow
     private let navigationController = UINavigationController()
+    private let networkManager = NetworkManager()
+    lazy private var musicService = MusicService(networkManager)
     
     init(_ window: UIWindow) {
         self.window = window
     }
     
     func start() {
-        let controller = UIViewController()
+        let viewModel = MainViewModel(musicService)
+        let controller = MainViewController(viewModel: viewModel)
         navigationController.setViewControllers([controller], animated: false)
         window.rootViewController = navigationController
         window.makeKeyAndVisible()
