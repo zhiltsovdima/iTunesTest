@@ -53,7 +53,7 @@ enum NetworkError: Error, Equatable {
         }
         switch httpResponse.statusCode {
         case 200...299:
-            guard let data = data else { throw NetworkError.noData }
+            guard let data else { throw NetworkError.noData }
             return data
         case 401, 403:
             throw NetworkError.authenticationError(statusCode: httpResponse.statusCode)

@@ -18,4 +18,8 @@ enum Resources {
     enum Identifiers {
         static let song = "SongCell"
     }
+    
+    enum Images {
+        static let failedImage = UIImage(named: "FailedImage")
+    }
 }

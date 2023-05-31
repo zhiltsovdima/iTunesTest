@@ -47,14 +47,22 @@ extension MainViewController {
             errorMessage.isHidden = true
             tableView.isHidden = true
         case .loaded:
-            tableView.isHidden = false
             tableView.reloadData()
+            tableView.isHidden = false
             placeholder.stopAnimating()
         case .failed(let errorText):
             errorMessage.isHidden = false
             errorMessage.text = errorText
             placeholder.stopAnimating()
         }
+    }
+    
+    private func updateCellImage(_ indexPath: IndexPath, in tableView: UITableView) {
+        guard let cellToUpdate = tableView.cellForRow(at: indexPath) as? SongCell,
+              let indexPath = tableView.indexPath(for: cellToUpdate) else { return }
+        
+        let image = viewModel.music[indexPath.row].imageMin
+        cellToUpdate.updateImage(with: image)
     }
 
     private func setupAppearance() {
@@ -77,6 +85,7 @@ extension MainViewController {
         tableView.dataSource = self
         tableView.delegate = self
         tableView.register(SongCell.self, forCellReuseIdentifier: Resources.Identifiers.song)
+        tableView.rowHeight = 100
         
         searchBar.delegate = self
         
@@ -120,7 +129,6 @@ extension MainViewController: UITableViewDataSource {
         
         let songModel = viewModel.music[indexPath.row]
         cell.setup(with: songModel)
-        
         return cell
     }
 }
@@ -129,13 +137,27 @@ extension MainViewController: UITableViewDataSource {
 
 extension MainViewController: UITableViewDelegate {
     
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        viewModel.fetchImage(for: indexPath) { [weak self] updatedIndex in
+            guard let self else { return }
+            DispatchQueue.main.async {
+                self.updateCellImage(updatedIndex, in: tableView)
+            }
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        viewModel.selectRow(at: indexPath)
+        tableView.deselectRow(at: indexPath, animated: true)
+    }
 }
 
 extension MainViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         viewModel.searchTextDidChange(searchText) { [weak self] loadingState in
+            guard let self else { return }
             DispatchQueue.main.async {
-                self?.updateUI(for: loadingState)
+                self.updateUI(for: loadingState)
             }
         }
     }

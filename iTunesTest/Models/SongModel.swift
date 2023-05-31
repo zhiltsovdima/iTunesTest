@@ -9,17 +9,66 @@ import UIKit
 
 final class SongModel {
     let artist, track: String
-    let imageUr100, imageUrl600: String?
+    let imageUrl100, imageUrl600: String?
     let previewURL: String?
     
-    var image100: UIImage?
-    var image1600: UIImage?
+    var imageMin: UIImage?
+    var imageMax: UIImage?
     
-    init(artistName: String, trackName: String, artworkUr100: String?, artworkUrl600: String?, previewURL: String?) {
+    private var isImageMaxLoaded = false
+    private var isImageMinLoaded = false
+    
+    private let musicService: MusicServiceProtocol
+    
+    init(_ musicService: MusicServiceProtocol, artistName: String, trackName: String, artworkUrl100: String?, artworkUrl600: String?, previewURL: String?) {
+        self.musicService = musicService
         self.artist = artistName
         self.track = trackName
-        self.imageUr100 = artworkUr100
+        self.imageUrl100 = artworkUrl100
         self.imageUrl600 = artworkUrl600
         self.previewURL = previewURL
     }
+    
+    func fetchImage(useMaxSize: Bool, completion: @escaping (() -> Void)) {
+        let isLoaded = useMaxSize ? isImageMaxLoaded : isImageMinLoaded
+    
+        guard !isLoaded else { return }
+        
+        let urlString = useMaxSize ? imageUrl600 ?? imageUrl100 : imageUrl100
+        
+        musicService.getImage(byUrl: urlString) { [weak self] result in
+            guard let self else { return }
+            switch result {
+            case .success(let image):
+                self.updateImage(useMaxSize: useMaxSize, with: image)
+            case .failure(let netError):
+                self.imageFetchingFailure(useMaxSize: useMaxSize, netError: netError)
+            }
+            completion()
+        }
+    }
+    
+    private func updateImage(useMaxSize: Bool, with image: UIImage) {
+        if useMaxSize {
+            imageMax = image
+            isImageMaxLoaded = true
+        } else {
+            imageMin = image
+            isImageMinLoaded = true
+        }
+    }
+
+    private func imageFetchingFailure(useMaxSize: Bool, netError: NetworkError) {
+        let failedImage = Resources.Images.failedImage
+        if useMaxSize {
+            imageMin = failedImage
+            isImageMinLoaded = false
+        } else {
+            imageMax = failedImage
+            isImageMaxLoaded = false
+        }
+        print("Fetching image failure: \(netError.description)")
+    }
+
+
 }

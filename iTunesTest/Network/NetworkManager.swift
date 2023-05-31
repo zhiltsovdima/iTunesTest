@@ -18,6 +18,8 @@ final class NetworkManager: NetworkManagerProtocol {
         
     private let urlSession: URLSessionProtocol
     
+    private var imageCache = NSCache<NSURL, UIImage>()
+    
     init(urlSession: URLSessionProtocol = URLSession.shared) {
         self.urlSession = urlSession
     }
@@ -30,6 +32,29 @@ final class NetworkManager: NetworkManagerProtocol {
                 let safeData = try NetworkError.processResponseData(data, response)
                 let result = self.parseData(T.self, safeData)
                 completion(result)
+            } catch {
+                let netError = error as! NetworkError
+                completion(.failure(netError))
+            }
+        }
+        task.resume()
+    }
+    
+    func fetchImage(from url: URL, completion: @escaping (Result<UIImage, NetworkError>) -> Void) {
+        if let cachedImage = imageCache.object(forKey: url as NSURL) {
+            completion(.success(cachedImage))
+            return
+        }
+        let task = urlSession.dataTask(with: url) { [weak self] data, response, error in
+            guard let self else { return completion(Result.failure(NetworkError.failed))}
+            do {
+                let safeData = try NetworkError.processResponseData(data, response)
+                guard let image = UIImage(data: safeData) else {
+                    completion(.failure(NetworkError.unableToDecode))
+                    return
+                }
+                self.imageCache.setObject(image, forKey: url as NSURL)
+                completion(.success(image))
             } catch {
                 let netError = error as! NetworkError
                 completion(.failure(netError))

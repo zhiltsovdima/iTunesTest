@@ -14,6 +14,6 @@ struct ResultsDataModel: Codable {
 
 struct SongDataModel: Codable {
     let artistName, trackName: String?
-    let artworkUr100, artworkUrl600: String?
+    let artworkUrl100, artworkUrl600: String?
     let previewURL: String?
 }

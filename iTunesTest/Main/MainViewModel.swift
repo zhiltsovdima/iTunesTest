@@ -13,6 +13,8 @@ protocol MainViewModelProtocol: AnyObject {
     
     func numberOfRows() -> Int
     func searchTextDidChange(_ name: String, completion: @escaping ((LoadingState) -> Void))
+    func fetchImage(for index: IndexPath, completion: @escaping (IndexPath) -> Void)
+    func selectRow(at index: IndexPath)
 }
 
 // MARK: - MainViewModel
@@ -20,13 +22,14 @@ protocol MainViewModelProtocol: AnyObject {
 final class MainViewModel {
     
     var music = [SongModel]()
-
     var loadingState: LoadingState = .idle
     
+    private weak var coordinator: AppCoordinatorProtocol?
     private let musicService: MusicServiceProtocol
     
-    init(_ musicService: MusicServiceProtocol) {
+    init(_ coordinator: AppCoordinatorProtocol, _ musicService: MusicServiceProtocol) {
         self.musicService = musicService
+        self.coordinator = coordinator
     }
 }
 
@@ -46,8 +49,20 @@ extension MainViewModel: MainViewModelProtocol {
         fetchMusic(by: name, completion: completion)
     }
     
+    func fetchImage(for index: IndexPath, completion: @escaping (IndexPath) -> Void) {
+        let model = music[index.row]
+        model.fetchImage(useMaxSize: false) {
+            completion(index)
+        }
+    }
+    
     func numberOfRows() -> Int {
         return music.count
+    }
+    
+    func selectRow(at index: IndexPath) {
+        let songModel = music[index.row]
+        coordinator?.showDetail(with: songModel)
     }
 }
 
@@ -62,6 +77,7 @@ extension MainViewModel {
 // MARK: - Fetching and Handling
 
 extension MainViewModel {
+    
     private func fetchMusic(by name: String, completion: @escaping ((LoadingState) -> Void)) {
         musicService.getMusic(by: name) { [weak self] result in
             guard let self else { return }
@@ -77,9 +93,10 @@ extension MainViewModel {
     private func handleSuccess(with songs: [SongDataModel], completion: @escaping ((LoadingState) -> Void)) {
         let songModels = songs
             .map { SongModel(
+                musicService,
                 artistName: $0.artistName ?? "No Name",
                 trackName: $0.trackName ?? "No Name",
-                artworkUr100: $0.artworkUr100,
+                artworkUrl100: $0.artworkUrl100,
                 artworkUrl600: $0.artworkUrl600,
                 previewURL: $0.previewURL)
         }

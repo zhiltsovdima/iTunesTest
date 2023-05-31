@@ -5,10 +5,11 @@
 //  Created by Dima Zhiltsov on 30.05.2023.
 //
 
-import Foundation
+import UIKit
 
 protocol MusicServiceProtocol {
     func getMusic(by name: String, completion: @escaping (Result<[SongDataModel], NetworkError>) -> Void)
+    func getImage(byUrl urlString: String?, completion: @escaping ((Result<UIImage, NetworkError>) -> Void))
 }
 
 final class MusicService: MusicServiceProtocol {
@@ -39,6 +40,23 @@ final class MusicService: MusicServiceProtocol {
             case .success(let resultsData):
                 let music = resultsData.results
                 completion(.success(music))
+            case .failure(let netError):
+                completion(.failure(netError))
+            }
+        }
+    }
+    
+    func getImage(byUrl urlString: String?, completion: @escaping ((Result<UIImage, NetworkError>) -> Void)) {
+        guard let urlString,
+              let imageURL = URL(string: urlString)
+        else {
+            completion(.failure(NetworkError.wrongURL))
+            return
+        }
+        networkManager.fetchImage(from: imageURL) { result in
+            switch result {
+            case .success(let image):
+                completion(.success(image))
             case .failure(let netError):
                 completion(.failure(netError))
             }

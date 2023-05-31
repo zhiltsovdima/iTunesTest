@@ -5,10 +5,11 @@
 //  Created by Dima Zhiltsov on 30.05.2023.
 //
 
-import Foundation
+import UIKit.UIImage
 
 protocol NetworkManagerProtocol {
     func fetchData<T: Decodable>(requestType: APIEndpoints, completion: @escaping (Result<T, NetworkError>) -> Void)
+    func fetchImage(from url: URL, completion: @escaping (Result<UIImage, NetworkError>) -> Void)
 }
 
 protocol NetworkManagerDataParser {
