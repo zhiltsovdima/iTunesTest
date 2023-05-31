@@ -34,7 +34,7 @@ final class MainViewController: UIViewController {
     }
 }
 
-// MARK: - UI Settings
+// MARK: - UI Updating
 
 extension MainViewController {
     
@@ -64,6 +64,11 @@ extension MainViewController {
         let image = viewModel.music[indexPath.row].imageMin
         cellToUpdate.updateImage(with: image)
     }
+}
+
+// MARK: - UI Settings
+
+extension MainViewController {
 
     private func setupAppearance() {
         title = Constant.title

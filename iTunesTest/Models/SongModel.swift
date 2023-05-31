@@ -22,7 +22,13 @@ final class SongModel {
     
     private let musicService: MusicServiceProtocol
     
-    init(_ musicService: MusicServiceProtocol, artistName: String, trackName: String, artworkUrl100: String?, artworkUrl600: String?, previewUrl: String?) {
+    init(_ musicService: MusicServiceProtocol,
+         artistName: String,
+         trackName: String,
+         artworkUrl100: String?,
+         artworkUrl600: String?,
+         previewUrl: String?
+    ) {
         self.musicService = musicService
         self.artist = artistName
         self.track = trackName
@@ -34,7 +40,10 @@ final class SongModel {
     func fetchImage(useMaxSize: Bool, completion: @escaping (() -> Void)) {
         let isLoaded = useMaxSize ? isImageMaxLoaded : isImageMinLoaded
     
-        guard !isLoaded else { return }
+        guard !isLoaded else {
+            completion()
+            return
+        }
         
         let urlString = useMaxSize ? imageUrl600 ?? imageUrl100 : imageUrl100
         

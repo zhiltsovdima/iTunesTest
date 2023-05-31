@@ -27,6 +27,7 @@
 		625F9F7E2A26666600BDD250 /* SongModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 625F9F7D2A26666600BDD250 /* SongModel.swift */; };
 		625F9F812A2757C300BDD250 /* DetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 625F9F802A2757C300BDD250 /* DetailViewController.swift */; };
 		625F9F832A2757D200BDD250 /* DetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 625F9F822A2757D200BDD250 /* DetailViewModel.swift */; };
+		625F9F852A27A06900BDD250 /* AudioPlayerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 625F9F842A27A06900BDD250 /* AudioPlayerService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -52,6 +53,7 @@
 		625F9F7D2A26666600BDD250 /* SongModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SongModel.swift; sourceTree = "<group>"; };
 		625F9F802A2757C300BDD250 /* DetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailViewController.swift; sourceTree = "<group>"; };
 		625F9F822A2757D200BDD250 /* DetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailViewModel.swift; sourceTree = "<group>"; };
+		625F9F842A27A06900BDD250 /* AudioPlayerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayerService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -129,6 +131,7 @@
 			isa = PBXGroup;
 			children = (
 				625F9F6F2A25EC9300BDD250 /* MusicService.swift */,
+				625F9F842A27A06900BDD250 /* AudioPlayerService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -274,6 +277,7 @@
 				625F9F652A25E6FB00BDD250 /* NetworkManager.swift in Sources */,
 				625F9F702A25EC9300BDD250 /* MusicService.swift in Sources */,
 				625F9F612A25E1C200BDD250 /* MainViewModel.swift in Sources */,
+				625F9F852A27A06900BDD250 /* AudioPlayerService.swift in Sources */,
 				625F9F5F2A25DC7F00BDD250 /* AppCoordinator.swift in Sources */,
 				625F9F6E2A25E85000BDD250 /* APIEndpoints.swift in Sources */,
 				625F9F4C2A25DA0900BDD250 /* MainViewController.swift in Sources */,

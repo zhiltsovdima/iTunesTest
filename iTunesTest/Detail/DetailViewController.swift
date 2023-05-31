@@ -31,6 +31,12 @@ final class DetailViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        viewModel.updateButtonCompletion = { [weak self] in
+            guard let self else { return }
+            DispatchQueue.main.async {
+                self.updateButton()
+            }
+        }
         viewModel.fetchImage { [weak self] state in
             guard let self else { return }
             DispatchQueue.main.async {
@@ -70,6 +76,10 @@ extension DetailViewController {
         }
     }
     
+    private func updateButton() {
+        viewModel.isPlaying ? playButton.setImage(Resources.Images.pause, for: .normal) : playButton.setImage(Resources.Images.play, for: .normal)
+    }
+    
     private func setupAppearance() {
         view.backgroundColor = Resources.Colors.background
     }
@@ -81,6 +91,7 @@ extension DetailViewController {
         }
         
         trackImage.contentMode = .scaleAspectFill
+        trackImage.clipsToBounds = true
         
         artistLabel.text = viewModel.songModel.artist
         artistLabel.font = .boldSystemFont(ofSize: 20)
@@ -120,8 +131,8 @@ extension DetailViewController {
             
             playButton.topAnchor.constraint(equalTo: trackName.bottomAnchor, constant: 20),
             playButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            playButton.widthAnchor.constraint(equalToConstant: 80),
-            playButton.heightAnchor.constraint(equalToConstant: 80)
+            playButton.widthAnchor.constraint(equalToConstant: 70),
+            playButton.heightAnchor.constraint(equalToConstant: 70)
         ])
     }
 }

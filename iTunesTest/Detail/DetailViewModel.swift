@@ -10,6 +10,8 @@ import AVFoundation
 
 protocol DetailViewModelProtocol: AnyObject {
     var songModel: SongModel { get }
+    var isPlaying: Bool { get }
+    var updateButtonCompletion: (() -> Void)? { get set }
 
     func fetchImage(completion: @escaping ((LoadingState) -> Void))
     func playButtonTapped()
@@ -18,26 +20,27 @@ protocol DetailViewModelProtocol: AnyObject {
 final class DetailViewModel {
     
     let songModel: SongModel
+    var updateButtonCompletion: (() -> Void)?
     
-    var audioPlayer = AVAudioPlayer()
-    
+    var isPlaying = false {
+        didSet {
+            updateButtonCompletion?()
+        }
+    }
+        
     private weak var coordinator: AppCoordinatorProtocol?
     private let musicService: MusicServiceProtocol
+    private let audioService: AudioServiceProtocol
     
-    init(_ coordinator: AppCoordinatorProtocol, _ musicService: MusicServiceProtocol, _ songModel: SongModel) {
+    init(_ coordinator: AppCoordinatorProtocol,
+         _ musicService: MusicServiceProtocol,
+         _ audioService: AudioServiceProtocol,
+         _ songModel: SongModel
+    ) {
         self.coordinator = coordinator
         self.musicService = musicService
+        self.audioService = audioService
         self.songModel = songModel
-    }
-    
-    func playAudio(data: Data) {
-        do {
-            audioPlayer = try AVAudioPlayer(data: data)
-            audioPlayer.prepareToPlay()
-            audioPlayer.play()
-        } catch {
-            print("AudioPlayer error: \(error.localizedDescription)")
-        }
     }
 }
 
@@ -57,8 +60,14 @@ extension DetailViewModel: DetailViewModelProtocol {
             switch result {
             case .success(let audio):
                 self.songModel.audio = audio
-                self.playAudio(data: audio)
+                if self.audioService.isPlaying {
+                    self.audioService.pauseAudio()
+                } else {
+                    self.audioService.playAudio(data: audio)
+                }
+                self.isPlaying = self.audioService.isPlaying
             case .failure(let netError):
+                self.isPlaying = false
                 print(netError.description)
             }
         }

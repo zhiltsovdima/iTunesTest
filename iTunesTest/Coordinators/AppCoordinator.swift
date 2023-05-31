@@ -19,8 +19,10 @@ final class AppCoordinator: Coordinator {
     
     private let window: UIWindow
     private let navigationController = UINavigationController()
+    
     private let networkManager = NetworkManager()
     lazy private var musicService = MusicService(networkManager)
+    private let audioService = AudioService()
     
     init(_ window: UIWindow) {
         self.window = window
@@ -38,7 +40,7 @@ final class AppCoordinator: Coordinator {
 extension AppCoordinator: AppCoordinatorProtocol {
     
     func showDetail(with songModel: SongModel) {
-        let viewModel = DetailViewModel(self, musicService, songModel)
+        let viewModel = DetailViewModel(self, musicService, audioService, songModel)
         let controller = DetailViewController(viewModel: viewModel)
         navigationController.pushViewController(controller, animated: true)
     }

@@ -20,7 +20,6 @@ final class MusicService {
     
     private var imageCache = NSCache<NSURL, UIImage>()
     
-    
     init(_ networkManager: NetworkManagerProtocol) {
         self.networkManager = networkManager
     }
@@ -61,9 +60,7 @@ extension MusicService: MusicServiceProtocol {
     }
     
     func getTrackPreview(byUrl urlString: String?, completion: @escaping ((Result<Data, NetworkError>) -> Void)) {
-        guard let urlString,
-              let audioURL = URL(string: urlString)
-        else {
+        guard let urlString, let audioURL = URL(string: urlString) else {
             completion(.failure(NetworkError.wrongURL))
             return
         }
