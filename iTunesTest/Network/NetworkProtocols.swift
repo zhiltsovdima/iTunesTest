@@ -9,8 +9,7 @@ import UIKit.UIImage
 
 protocol NetworkManagerProtocol {
     func fetchData<T: Decodable>(requestType: APIEndpoints, completion: @escaping (Result<T, NetworkError>) -> Void)
-    func fetchImage(from url: URL, completion: @escaping (Result<UIImage, NetworkError>) -> Void)
-    func fetchAudio(from url: URL, completion: @escaping (Result<Data, NetworkError>) -> Void)
+    func fetchData(from url: URL, completion: @escaping (Result<Data, NetworkError>) -> Void)
 }
 
 protocol NetworkManagerDataParser {
