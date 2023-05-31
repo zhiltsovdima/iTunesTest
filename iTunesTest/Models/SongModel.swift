@@ -10,23 +10,25 @@ import UIKit
 final class SongModel {
     let artist, track: String
     let imageUrl100, imageUrl600: String?
-    let previewURL: String?
+    let previewUrl: String?
     
     var imageMin: UIImage?
     var imageMax: UIImage?
+    
+    var audio: Data?
     
     private var isImageMaxLoaded = false
     private var isImageMinLoaded = false
     
     private let musicService: MusicServiceProtocol
     
-    init(_ musicService: MusicServiceProtocol, artistName: String, trackName: String, artworkUrl100: String?, artworkUrl600: String?, previewURL: String?) {
+    init(_ musicService: MusicServiceProtocol, artistName: String, trackName: String, artworkUrl100: String?, artworkUrl600: String?, previewUrl: String?) {
         self.musicService = musicService
         self.artist = artistName
         self.track = trackName
         self.imageUrl100 = artworkUrl100
         self.imageUrl600 = artworkUrl600
-        self.previewURL = previewURL
+        self.previewUrl = previewUrl
     }
     
     func fetchImage(useMaxSize: Bool, completion: @escaping (() -> Void)) {

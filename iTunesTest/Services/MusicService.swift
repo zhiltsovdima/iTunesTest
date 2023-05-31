@@ -10,6 +10,7 @@ import UIKit
 protocol MusicServiceProtocol {
     func getMusic(by name: String, completion: @escaping (Result<[SongDataModel], NetworkError>) -> Void)
     func getImage(byUrl urlString: String?, completion: @escaping ((Result<UIImage, NetworkError>) -> Void))
+    func getTrackPreview(byUrl urlString: String?, completion: @escaping ((Result<Data, NetworkError>) -> Void))
 }
 
 final class MusicService: MusicServiceProtocol {
@@ -57,6 +58,23 @@ final class MusicService: MusicServiceProtocol {
             switch result {
             case .success(let image):
                 completion(.success(image))
+            case .failure(let netError):
+                completion(.failure(netError))
+            }
+        }
+    }
+    
+    func getTrackPreview(byUrl urlString: String?, completion: @escaping ((Result<Data, NetworkError>) -> Void)) {
+        guard let urlString,
+              let audioURL = URL(string: urlString)
+        else {
+            completion(.failure(NetworkError.wrongURL))
+            return
+        }
+        networkManager.fetchAudio(from: audioURL) { result in
+            switch result {
+            case .success(let audioData):
+                completion(.success(audioData))
             case .failure(let netError):
                 completion(.failure(netError))
             }

@@ -98,7 +98,7 @@ extension MainViewModel {
                 trackName: $0.trackName ?? "No Name",
                 artworkUrl100: $0.artworkUrl100,
                 artworkUrl600: $0.artworkUrl600,
-                previewURL: $0.previewURL)
+                previewUrl: $0.previewUrl)
         }
         music = songModels
         loadingState = .loaded

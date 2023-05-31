@@ -46,7 +46,7 @@ final class NetworkManager: NetworkManagerProtocol {
             return
         }
         let task = urlSession.dataTask(with: url) { [weak self] data, response, error in
-            guard let self else { return completion(Result.failure(NetworkError.failed))}
+            guard let self else { return }
             do {
                 let safeData = try NetworkError.processResponseData(data, response)
                 guard let image = UIImage(data: safeData) else {
@@ -55,6 +55,19 @@ final class NetworkManager: NetworkManagerProtocol {
                 }
                 self.imageCache.setObject(image, forKey: url as NSURL)
                 completion(.success(image))
+            } catch {
+                let netError = error as! NetworkError
+                completion(.failure(netError))
+            }
+        }
+        task.resume()
+    }
+    
+    func fetchAudio(from url: URL, completion: @escaping (Result<Data, NetworkError>) -> Void) {
+        let task = urlSession.dataTask(with: url) { (data, response, error) in
+            do {
+                let safeData = try NetworkError.processResponseData(data, response)
+                completion(.success(safeData))
             } catch {
                 let netError = error as! NetworkError
                 completion(.failure(netError))
