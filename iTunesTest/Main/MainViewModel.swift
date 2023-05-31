@@ -70,7 +70,9 @@ extension MainViewModel: MainViewModelProtocol {
 
 extension MainViewModel {
     private func validateName(_ name: String) -> Bool {
-        return name.count >= 3
+        let russianLetters = CharacterSet(charactersIn: "абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ")
+        let isRussianLetters = name.rangeOfCharacter(from: russianLetters) != nil
+        return name.count >= 3 && !isRussianLetters
     }
 }
 

@@ -15,6 +15,8 @@ protocol DetailViewModelProtocol: AnyObject {
 
     func fetchImage(completion: @escaping ((LoadingState) -> Void))
     func playButtonTapped()
+    func backButtonTapped()
+    func viewDidDisappear()
 }
 
 final class DetailViewModel {
@@ -44,6 +46,8 @@ final class DetailViewModel {
     }
 }
 
+// MARK: - DetailViewModelProtocol
+
 extension DetailViewModel: DetailViewModelProtocol {
     
     func fetchImage(completion: @escaping ((LoadingState) -> Void)) {        
@@ -60,11 +64,7 @@ extension DetailViewModel: DetailViewModelProtocol {
             switch result {
             case .success(let audio):
                 self.songModel.audio = audio
-                if self.audioService.isPlaying {
-                    self.audioService.pauseAudio()
-                } else {
-                    self.audioService.playAudio(data: audio)
-                }
+                self.audioService.isPlaying ? self.audioService.pauseAudio() : self.audioService.playAudio(data: audio)
                 self.isPlaying = self.audioService.isPlaying
             case .failure(let netError):
                 self.isPlaying = false
@@ -73,4 +73,11 @@ extension DetailViewModel: DetailViewModelProtocol {
         }
     }
     
+    func backButtonTapped() {
+        coordinator?.backToMain()
+    }
+    
+    func viewDidDisappear() {
+        audioService.stopAudio()
+    }
 }

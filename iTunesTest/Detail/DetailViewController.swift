@@ -54,10 +54,21 @@ final class DetailViewController: UIViewController {
         playButton.layer.cornerRadius = playButton.frame.height / 2
     }
     
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        viewModel.viewDidDisappear()
+    }
+    
     @objc private func playButtonTapped() {
         viewModel.playButtonTapped()
     }
+    
+    @objc private func backButtonTapped() {
+        viewModel.backButtonTapped()
+    }
 }
+
+// MARK: - UI Updating
 
 extension DetailViewController {
     
@@ -79,9 +90,19 @@ extension DetailViewController {
     private func updateButton() {
         viewModel.isPlaying ? playButton.setImage(Resources.Images.pause, for: .normal) : playButton.setImage(Resources.Images.play, for: .normal)
     }
+}
+
+// MARK: - UI Settings
+
+extension DetailViewController {
     
     private func setupAppearance() {
         view.backgroundColor = Resources.Colors.background
+        navigationController?.navigationBar.tintColor = Resources.Colors.button
+        navigationItem.leftBarButtonItem = UIBarButtonItem(image: Resources.Images.back,
+                                                           style: .done,
+                                                           target: self,
+                                                           action: #selector(backButtonTapped))
     }
     
     private func setupViews() {

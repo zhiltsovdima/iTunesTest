@@ -31,6 +31,11 @@ final class MainViewController: UIViewController {
         setupAppearance()
         setupViews()
         setupConstraints()
+        setupGestureRecognizer()
+    }
+    
+    @objc private func handleTap() {
+        view.endEditing(true)
     }
 }
 
@@ -93,6 +98,7 @@ extension MainViewController {
         tableView.rowHeight = 100
         
         searchBar.delegate = self
+        searchBar.searchBarStyle = .minimal
         
         placeholder.hidesWhenStopped = true
     }
@@ -114,6 +120,12 @@ extension MainViewController {
             errorMessage.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             errorMessage.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
+    }
+    
+    private func setupGestureRecognizer() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
     }
 }
 

@@ -13,6 +13,7 @@ protocol Coordinator: AnyObject {
 
 protocol AppCoordinatorProtocol: AnyObject {
     func showDetail(with songModel: SongModel)
+    func backToMain()
 }
 
 final class AppCoordinator: Coordinator {
@@ -45,4 +46,7 @@ extension AppCoordinator: AppCoordinatorProtocol {
         navigationController.pushViewController(controller, animated: true)
     }
 
+    func backToMain() {
+        navigationController.popViewController(animated: true)
+    }
 }
