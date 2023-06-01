@@ -2,7 +2,7 @@
 UIKit app for finding music on iTunes and playing a preview part of a song
 
 <img src="https://github.com/zhiltsovdima/iTunesTest/assets/50846656/ae9f867a-0743-4789-be21-e9384b301a77" width = 20% height = 20%> 
-<img src="https://github.com/zhiltsovdima/iTunesTest/assets/50846656/ee0dafcb-4b0f-4c5f-be2d-825ef79f2c51" width = 20% height = 20%>
+<img src="https://github.com/zhiltsovdima/iTunesTest/assets/50846656/cbc1033f-d43e-4072-b403-578dcacddcd5" width = 20% height = 20%>
 
 **Tech Stack:** Swift, UIKit, MVVM-C, URLSession
 
