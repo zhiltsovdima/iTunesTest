@@ -16,6 +16,7 @@ final class DetailViewController: UIViewController {
     private let trackName = UILabel()
     
     private let playButton = UIButton()
+    private let progressBar = UIProgressView(progressViewStyle: .default)
     
     private let placeholder = UIActivityIndicatorView()
     
@@ -31,18 +32,7 @@ final class DetailViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        viewModel.updateButtonCompletion = { [weak self] in
-            guard let self else { return }
-            DispatchQueue.main.async {
-                self.updateButton()
-            }
-        }
-        viewModel.fetchImage { [weak self] state in
-            guard let self else { return }
-            DispatchQueue.main.async {
-                self.updateUI(for: state)
-            }
-        }
+        setUpdateCompletion()
         setupAppearance()
         setupViews()
         setupConstraints()
@@ -50,7 +40,6 @@ final class DetailViewController: UIViewController {
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        
         playButton.layer.cornerRadius = playButton.frame.height / 2
     }
     
@@ -72,6 +61,28 @@ final class DetailViewController: UIViewController {
 
 extension DetailViewController {
     
+    private func setUpdateCompletion() {
+        viewModel.updateButtonCompletion = { [weak self] in
+            guard let self else { return }
+            DispatchQueue.main.async {
+                self.updateButton()
+            }
+        }
+        viewModel.fetchImage { [weak self] state in
+            guard let self else { return }
+            DispatchQueue.main.async {
+                self.updateUI(for: state)
+            }
+        }
+        viewModel.updateProgressCompletion = { [weak self] progress in
+            guard let self else { return }
+            DispatchQueue.main.async {
+                self.updateProgressBar(progress: progress)
+            }
+        }
+        viewModel.setProgressUpdate()
+    }
+    
     private func updateUI(for state: LoadingState) {
         switch state {
         case .idle:
@@ -88,7 +99,12 @@ extension DetailViewController {
     }
     
     private func updateButton() {
-        viewModel.isPlaying ? playButton.setImage(Resources.Images.pause, for: .normal) : playButton.setImage(Resources.Images.play, for: .normal)
+        let buttonImage = viewModel.isPlaying ? Resources.Images.pause : Resources.Images.play
+        playButton.setImage(buttonImage, for: .normal)
+    }
+    
+    private func updateProgressBar(progress: Float) {
+        progressBar.progress = progress
     }
 }
 
@@ -106,7 +122,7 @@ extension DetailViewController {
     }
     
     private func setupViews() {
-        [trackImage, artistLabel, trackName, placeholder, playButton].forEach {
+        [trackImage, artistLabel, trackName, placeholder, playButton, progressBar].forEach {
             view.addSubview($0)
             $0.translatesAutoresizingMaskIntoConstraints = false
         }
@@ -128,7 +144,7 @@ extension DetailViewController {
         playButton.tintColor = .white
         playButton.backgroundColor = Resources.Colors.button
         playButton.addTarget(self, action: #selector(playButtonTapped), for: .touchUpInside)
-        
+                
         placeholder.hidesWhenStopped = true
     }
     
@@ -150,7 +166,11 @@ extension DetailViewController {
             trackName.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             trackName.widthAnchor.constraint(equalTo: trackImage.widthAnchor),
             
-            playButton.topAnchor.constraint(equalTo: trackName.bottomAnchor, constant: 20),
+            progressBar.topAnchor.constraint(equalTo: trackName.bottomAnchor, constant: 20),
+            progressBar.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            progressBar.widthAnchor.constraint(equalTo: trackImage.widthAnchor),
+            
+            playButton.topAnchor.constraint(equalTo: progressBar.bottomAnchor, constant: 20),
             playButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             playButton.widthAnchor.constraint(equalToConstant: 70),
             playButton.heightAnchor.constraint(equalToConstant: 70)
