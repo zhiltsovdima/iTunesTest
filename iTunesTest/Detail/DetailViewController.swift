@@ -12,13 +12,15 @@ final class DetailViewController: UIViewController {
     private let viewModel: DetailViewModelProtocol
     
     private let trackImage = UIImageView()
+    private let placeholder = UIActivityIndicatorView()
+    
+    private let stackView = UIStackView()
+    
     private let artistLabel = UILabel()
     private let trackName = UILabel()
     
     private let playButton = UIButton()
     private let progressBar = UIProgressView(progressViewStyle: .default)
-    
-    private let placeholder = UIActivityIndicatorView()
     
     init(viewModel: DetailViewModelProtocol) {
         self.viewModel = viewModel
@@ -122,7 +124,7 @@ extension DetailViewController {
     }
     
     private func setupViews() {
-        [trackImage, artistLabel, trackName, placeholder, playButton, progressBar].forEach {
+        [trackImage, placeholder, stackView].forEach {
             view.addSubview($0)
             $0.translatesAutoresizingMaskIntoConstraints = false
         }
@@ -144,6 +146,15 @@ extension DetailViewController {
         playButton.tintColor = .white
         playButton.backgroundColor = Resources.Colors.button
         playButton.addTarget(self, action: #selector(playButtonTapped), for: .touchUpInside)
+        
+        stackView.axis = .vertical
+        stackView.alignment = .center
+        stackView.distribution = .fill
+        stackView.spacing = 20
+        
+        [artistLabel, trackName, progressBar, playButton].forEach {
+            stackView.addArrangedSubview($0)
+        }
                 
         placeholder.hidesWhenStopped = true
     }
@@ -158,20 +169,12 @@ extension DetailViewController {
             placeholder.centerXAnchor.constraint(equalTo: trackImage.centerXAnchor),
             placeholder.centerYAnchor.constraint(equalTo: trackImage.centerYAnchor),
             
-            artistLabel.topAnchor.constraint(equalTo: trackImage.bottomAnchor, constant: 20),
-            artistLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            artistLabel.widthAnchor.constraint(equalTo: trackImage.widthAnchor),
+            stackView.topAnchor.constraint(equalTo: trackImage.bottomAnchor, constant: 20),
+            stackView.leadingAnchor.constraint(equalTo: trackImage.leadingAnchor),
+            stackView.trailingAnchor.constraint(equalTo: trackImage.trailingAnchor),
             
-            trackName.topAnchor.constraint(equalTo: artistLabel.bottomAnchor, constant: 10),
-            trackName.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            trackName.widthAnchor.constraint(equalTo: trackImage.widthAnchor),
-            
-            progressBar.topAnchor.constraint(equalTo: trackName.bottomAnchor, constant: 20),
-            progressBar.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             progressBar.widthAnchor.constraint(equalTo: trackImage.widthAnchor),
-            
-            playButton.topAnchor.constraint(equalTo: progressBar.bottomAnchor, constant: 20),
-            playButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+
             playButton.widthAnchor.constraint(equalToConstant: 70),
             playButton.heightAnchor.constraint(equalToConstant: 70)
         ])
