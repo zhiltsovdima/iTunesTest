@@ -64,25 +64,13 @@ final class DetailViewController: UIViewController {
 extension DetailViewController {
     
     private func setUpdateCompletion() {
-        viewModel.updateButtonCompletion = { [weak self] in
-            guard let self else { return }
-            DispatchQueue.main.async {
-                self.updateButton()
-            }
-        }
+
         viewModel.fetchImage { [weak self] state in
             guard let self else { return }
             DispatchQueue.main.async {
                 self.updateUI(for: state)
             }
         }
-        viewModel.updateProgressCompletion = { [weak self] progress in
-            guard let self else { return }
-            DispatchQueue.main.async {
-                self.updateProgressBar(progress: progress)
-            }
-        }
-        viewModel.setProgressUpdate()
     }
     
     private func updateUI(for state: LoadingState) {
@@ -98,15 +86,6 @@ extension DetailViewController {
             trackImage.image = viewModel.songModel.imageMax
             placeholder.stopAnimating()
         }
-    }
-    
-    private func updateButton() {
-        let buttonImage = viewModel.isPlaying ? Resources.Images.pause : Resources.Images.play
-        playButton.setImage(buttonImage, for: .normal)
-    }
-    
-    private func updateProgressBar(progress: Float) {
-        progressBar.progress = progress
     }
 }
 
@@ -178,5 +157,20 @@ extension DetailViewController {
             playButton.widthAnchor.constraint(equalToConstant: 70),
             playButton.heightAnchor.constraint(equalToConstant: 70)
         ])
+    }
+}
+
+// MARK: - AudioServiceDelegate
+
+extension DetailViewController: AudioServiceDelegate {
+    
+    func didUpdateProgress(currentProgress: Float) {
+        progressBar.progress = currentProgress
+    }
+    
+    func didUpdatePlayingState(isPlaying: Bool) {
+        let buttonImage = isPlaying ? Resources.Images.pause : Resources.Images.play
+        playButton.setImage(buttonImage, for: .normal)
+        
     }
 }

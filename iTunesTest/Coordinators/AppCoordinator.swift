@@ -43,6 +43,7 @@ extension AppCoordinator: AppCoordinatorProtocol {
     func showDetail(with songModel: SongModel) {
         let viewModel = DetailViewModel(self, musicService, audioService, songModel)
         let controller = DetailViewController(viewModel: viewModel)
+        audioService.delegate = controller
         navigationController.pushViewController(controller, animated: true)
     }
 

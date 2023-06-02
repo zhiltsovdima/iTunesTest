@@ -8,9 +8,13 @@
 import Foundation
 import AVFoundation
 
+protocol AudioServiceDelegate: AnyObject {
+    func didUpdateProgress(currentProgress: Float)
+    func didUpdatePlayingState(isPlaying: Bool)
+}
+
 protocol AudioServiceProtocol: AnyObject {
     var isPlaying: Bool { get }
-    var updateProgressCompletion: ((Float) -> Void)? { get set }
 
     func playAudio(data: Data)
     func pauseAudio()
@@ -26,12 +30,13 @@ final class AudioService: AudioServiceProtocol {
         return audioPlayer?.isPlaying ?? false
     }
     
-    var currentPosition: TimeInterval {
-        return audioPlayer?.currentTime ?? 0
-    }
+    weak var delegate: AudioServiceDelegate?
     
-    var audioDuration: TimeInterval {
-        return audioPlayer?.duration ?? 0
+    private var currentAudioProgress: Float {
+        let currentPosition = audioPlayer?.currentTime ?? 0
+        let audioDuration = audioPlayer?.duration ?? 0
+        
+        return Float(currentPosition / audioDuration)
     }
     
     var updateProgressCompletion: ((Float) -> Void)?
@@ -42,6 +47,7 @@ final class AudioService: AudioServiceProtocol {
             audioPlayer?.currentTime = pausedTime
             audioPlayer?.prepareToPlay()
             audioPlayer?.play()
+            updatePlayingState(isPlaying: true)
             startUpdatingProgress()
         } catch {
             print("AudioPlayer error: \(error.localizedDescription)")
@@ -51,11 +57,21 @@ final class AudioService: AudioServiceProtocol {
     func pauseAudio() {
         audioPlayer?.pause()
         pausedTime = audioPlayer?.currentTime ?? 0
+        updatePlayingState(isPlaying: false)
     }
     
     func stopAudio() {
         audioPlayer?.stop()
         audioPlayer = nil
+        pausedTime = 0
+        updatePlayingState(isPlaying: false)
+    }
+    
+    private func updatePlayingState(isPlaying: Bool) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            self.delegate?.didUpdatePlayingState(isPlaying: isPlaying)
+        }
     }
 
     private func startUpdatingProgress() {
@@ -63,16 +79,12 @@ final class AudioService: AudioServiceProtocol {
             guard let self else { return }
             while self.audioPlayer != nil && self.audioPlayer?.isPlaying == true {
                 DispatchQueue.main.async {
-                    self.updateProgress()
+                    let progress = self.currentAudioProgress
+                    self.delegate?.didUpdateProgress(currentProgress: progress)
                 }
                 Thread.sleep(forTimeInterval: 1.0)
             }
         }
-    }
-    
-    private func updateProgress() {
-        let progress = Float(currentPosition / audioDuration)
-        updateProgressCompletion?(progress)
     }
 }
 

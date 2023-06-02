@@ -10,13 +10,8 @@ import AVFoundation
 
 protocol DetailViewModelProtocol: AnyObject {
     var songModel: SongModel { get }
-    var isPlaying: Bool { get }
-    
-    var updateButtonCompletion: (() -> Void)? { get set }
-    var updateProgressCompletion: ((Float) -> Void)? { get set }
 
     func fetchImage(completion: @escaping ((LoadingState) -> Void))
-    func setProgressUpdate()
     func playButtonTapped()
     func backButtonTapped()
     func viewDidDisappear()
@@ -25,15 +20,6 @@ protocol DetailViewModelProtocol: AnyObject {
 final class DetailViewModel {
     
     let songModel: SongModel
-    
-    var isPlaying = false {
-        didSet {
-            updateButtonCompletion?()
-        }
-    }
-    
-    var updateButtonCompletion: (() -> Void)?
-    var updateProgressCompletion: ((Float) -> Void)?
         
     private weak var coordinator: AppCoordinatorProtocol?
     private let musicService: MusicServiceProtocol
@@ -53,17 +39,14 @@ final class DetailViewModel {
     private func play() {
         guard let audio = songModel.audio else { return }
         audioService.playAudio(data: audio)
-        isPlaying = true
     }
     
     private func pause() {
         audioService.pauseAudio()
-        isPlaying = false
     }
     
     private func stop() {
         audioService.stopAudio()
-        isPlaying = false
     }
 }
 
@@ -83,10 +66,6 @@ extension DetailViewModel: DetailViewModelProtocol {
             guard let self else { return }
             self.audioService.isPlaying ? self.pause() : self.play()
         }
-    }
-    
-    func setProgressUpdate() {
-        audioService.updateProgressCompletion = updateProgressCompletion
     }
     
     func backButtonTapped() {
