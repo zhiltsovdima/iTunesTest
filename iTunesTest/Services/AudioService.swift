@@ -21,33 +21,40 @@ protocol AudioServiceProtocol: AnyObject {
     func stopAudio()
 }
 
-final class AudioService: AudioServiceProtocol {
+final class AudioService: NSObject {
     
     private var audioPlayer: AVAudioPlayer?
+    weak var delegate: AudioServiceDelegate?
+    
     private var pausedTime: TimeInterval = 0
+    private var timer: Timer?
     
     var isPlaying: Bool {
         return audioPlayer?.isPlaying ?? false
     }
     
-    weak var delegate: AudioServiceDelegate?
-    
     private var currentAudioProgress: Float {
-        let currentPosition = audioPlayer?.currentTime ?? 0
-        let audioDuration = audioPlayer?.duration ?? 0
-        
+        guard let currentPosition = audioPlayer?.currentTime,
+              let audioDuration = audioPlayer?.duration
+        else {
+            return 0
+        }
         return Float(currentPosition / audioDuration)
     }
-    
-    var updateProgressCompletion: ((Float) -> Void)?
-    
+}
+
+// MARK: - AudioServiceProtocol
+
+extension AudioService: AudioServiceProtocol {
+        
     func playAudio(data: Data) {
         do {
             audioPlayer = try AVAudioPlayer(data: data)
+            audioPlayer?.delegate = self
             audioPlayer?.currentTime = pausedTime
             audioPlayer?.prepareToPlay()
             audioPlayer?.play()
-            updatePlayingState(isPlaying: true)
+            updatePlayingState(isPlaying)
             startUpdatingProgress()
         } catch {
             print("AudioPlayer error: \(error.localizedDescription)")
@@ -57,20 +64,34 @@ final class AudioService: AudioServiceProtocol {
     func pauseAudio() {
         audioPlayer?.pause()
         pausedTime = audioPlayer?.currentTime ?? 0
-        updatePlayingState(isPlaying: false)
+        updatePlayingState(isPlaying)
     }
     
     func stopAudio() {
         audioPlayer?.stop()
         audioPlayer = nil
         pausedTime = 0
-        updatePlayingState(isPlaying: false)
+        updatePlayingState(isPlaying)
+        updatePlayingProgress()
     }
+}
+
+// MARK: - Private methods
+
+extension AudioService {
     
-    private func updatePlayingState(isPlaying: Bool) {
+    private func updatePlayingState(_ isPlaying: Bool) {
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
             self.delegate?.didUpdatePlayingState(isPlaying: isPlaying)
+        }
+    }
+    
+    private func updatePlayingProgress() {
+        let progress = currentAudioProgress
+        DispatchQueue.main.async { [weak self ] in
+            guard let self else { return }
+            self.delegate?.didUpdateProgress(currentProgress: progress)
         }
     }
 
@@ -78,13 +99,20 @@ final class AudioService: AudioServiceProtocol {
         DispatchQueue.global(qos: .default).async { [weak self] in
             guard let self else { return }
             while self.audioPlayer != nil && self.audioPlayer?.isPlaying == true {
-                DispatchQueue.main.async {
-                    let progress = self.currentAudioProgress
-                    self.delegate?.didUpdateProgress(currentProgress: progress)
-                }
+                self.updatePlayingProgress()
                 Thread.sleep(forTimeInterval: 1.0)
             }
         }
     }
 }
 
+// MARK: - AVAudioPlayerDelegate
+
+extension AudioService: AVAudioPlayerDelegate {
+    
+    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        if flag {
+            stopAudio()
+        }
+    }
+}
