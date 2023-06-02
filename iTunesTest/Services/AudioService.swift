@@ -59,7 +59,8 @@ final class AudioService: AudioServiceProtocol {
     }
 
     private func startUpdatingProgress() {
-        DispatchQueue.global(qos: .default).async {
+        DispatchQueue.global(qos: .default).async { [weak self] in
+            guard let self else { return }
             while self.audioPlayer != nil && self.audioPlayer?.isPlaying == true {
                 DispatchQueue.main.async {
                     self.updateProgress()

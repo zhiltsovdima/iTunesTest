@@ -49,6 +49,22 @@ final class DetailViewModel {
         self.audioService = audioService
         self.songModel = songModel
     }
+    
+    private func play() {
+        guard let audio = songModel.audio else { return }
+        audioService.playAudio(data: audio)
+        isPlaying = true
+    }
+    
+    private func pause() {
+        audioService.pauseAudio()
+        isPlaying = false
+    }
+    
+    private func stop() {
+        audioService.stopAudio()
+        isPlaying = false
+    }
 }
 
 // MARK: - DetailViewModelProtocol
@@ -63,18 +79,9 @@ extension DetailViewModel: DetailViewModelProtocol {
     }
     
     func playButtonTapped() {
-        guard let audioUrl = songModel.previewUrl else { return }
-        musicService.getTrackPreview(byUrl: audioUrl) { [weak self] result in
+        songModel.fetchAudio { [weak self] in
             guard let self else { return }
-            switch result {
-            case .success(let audio):
-                self.songModel.audio = audio
-                self.audioService.isPlaying ? self.audioService.pauseAudio() : self.audioService.playAudio(data: audio)
-                self.isPlaying = self.audioService.isPlaying
-            case .failure(let netError):
-                self.isPlaying = false
-                print(netError.description)
-            }
+            self.audioService.isPlaying ? self.pause() : self.play()
         }
     }
     

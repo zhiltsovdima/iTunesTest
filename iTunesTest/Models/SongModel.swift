@@ -19,6 +19,7 @@ final class SongModel {
     
     private var isImageMaxLoaded = false
     private var isImageMinLoaded = false
+    private var isAudioLoaded = false
     
     private let musicService: MusicServiceProtocol
     
@@ -35,6 +36,26 @@ final class SongModel {
         self.imageUrl100 = artworkUrl100
         self.imageUrl600 = artworkUrl600
         self.previewUrl = previewUrl
+    }
+    
+    func fetchAudio(completion: @escaping (() -> Void)) {
+        guard let audioUrl = previewUrl else { return }
+        guard !isAudioLoaded else {
+            completion()
+            return
+        }
+        musicService.getTrackPreview(byUrl: audioUrl) { [weak self] result in
+            guard let self else { return }
+            switch result {
+            case .success(let audio):
+                self.audio = audio
+                self.isAudioLoaded = true
+                completion()
+            case .failure(let netError):
+                self.isAudioLoaded = false
+                print("Fetching audio failure: \(netError.description)")
+            }
+        }
     }
     
     func fetchImage(useMaxSize: Bool, completion: @escaping (() -> Void)) {
